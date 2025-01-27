@@ -1,0 +1,507 @@
+{
+	"info": {
+		"_postman_id": "d9eb8b84-4038-4bc3-b216-d90b42b252ab",
+		"name": "TrademeCategories",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32350757"
+	},
+	"item": [
+		{
+			"name": "Test Root Category in JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response is JSON\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Root category has required fields\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"Name\", \"Root\");\r",
+							"    pm.expect(jsonData).to.have.property(\"Number\", \"\");\r",
+							"    pm.expect(jsonData).to.have.property(\"Path\", \"\");\r",
+							"    pm.expect(jsonData).to.have.property(\"Subcategories\");\r",
+							"    pm.expect(jsonData).to.have.property(\"AreaOfBusiness\", 0);\r",
+							"    pm.expect(jsonData).to.have.property(\"IsLeaf\", false);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validate Subcategories field presence\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"\r",
+							"    if (jsonData.Subcategories) {\r",
+							"        pm.expect(jsonData.Subcategories).to.be.an(\"array\");\r",
+							"        jsonData.Subcategories.forEach(subcategory => {\r",
+							"            pm.expect(subcategory).to.have.property(\"Name\");\r",
+							"            pm.expect(subcategory).to.have.property(\"Number\");\r",
+							"            pm.expect(subcategory).to.have.property(\"Path\");\r",
+							"        });\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Each subcategory has required fields\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    jsonData.Subcategories.forEach(subcategory => {\r",
+							"        pm.expect(subcategory).to.have.property(\"Name\");\r",
+							"        pm.expect(subcategory).to.have.property(\"Number\");\r",
+							"        pm.expect(subcategory).to.have.property(\"Path\");\r",
+							"\r",
+							"        // Optional fields validation\r",
+							"        if (subcategory.hasOwnProperty(\"HasClassifieds\")) {\r",
+							"            pm.expect(subcategory.HasClassifieds).to.be.a(\"boolean\");\r",
+							"        }\r",
+							"        if (subcategory.hasOwnProperty(\"AreaOfBusiness\")) {\r",
+							"            pm.expect(subcategory.AreaOfBusiness).to.be.a(\"number\");\r",
+							"        }\r",
+							"        if (subcategory.hasOwnProperty(\"IsLeaf\")) {\r",
+							"            pm.expect(subcategory.IsLeaf).to.be.a(\"boolean\");\r",
+							"        }\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"//Ensure IsLeaf=true for categories that have no subcategories.\r",
+							"pm.test(\"Validate leaf categories\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    jsonData.Subcategories.forEach(subcategory => {\r",
+							"        if (subcategory.IsLeaf) {\r",
+							"            pm.expect(subcategory.Subcategories).to.be.undefined;\r",
+							"        }\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"//Verify that each nested subcategory has the required fields and structure.\r",
+							"function validateSubcategories(subcategories) {\r",
+							"    subcategories.forEach(subcategory => {\r",
+							"        pm.expect(subcategory).to.have.property(\"Name\");\r",
+							"        pm.expect(subcategory).to.have.property(\"Number\");\r",
+							"        pm.expect(subcategory).to.have.property(\"Path\");\r",
+							"\r",
+							"        // Optional fields validation\r",
+							"        if (subcategory.hasOwnProperty(\"HasClassifieds\")) {\r",
+							"            pm.expect(subcategory.HasClassifieds).to.be.a(\"boolean\");\r",
+							"        }\r",
+							"        if (subcategory.hasOwnProperty(\"AreaOfBusiness\")) {\r",
+							"            pm.expect(subcategory.AreaOfBusiness).to.be.a(\"number\");\r",
+							"        }\r",
+							"        if (subcategory.hasOwnProperty(\"IsLeaf\")) {\r",
+							"            pm.expect(subcategory.IsLeaf).to.be.a(\"boolean\");\r",
+							"        }\r",
+							"\r",
+							"        // Recursive validation\r",
+							"        if (subcategory.Subcategories) {\r",
+							"            pm.expect(subcategory.Subcategories).to.be.an(\"array\");\r",
+							"            validateSubcategories(subcategory.Subcategories);\r",
+							"        }\r",
+							"    });\r",
+							"}\r",
+							"\r",
+							"//To ensure optional fields like HasClassifieds, HasLegalNotice, or IsRestricted are handled correctly, add a separate test to check their presence and type only when they exist.\r",
+							"pm.test(\"Validate recursive subcategory structure\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    validateSubcategories(jsonData.Subcategories);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validate optional fields when present\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"\r",
+							"    function validateOptionalFields(subcategory) {\r",
+							"        if (subcategory.hasOwnProperty(\"HasClassifieds\")) {\r",
+							"            pm.expect(subcategory.HasClassifieds).to.be.a(\"boolean\");\r",
+							"        }\r",
+							"        if (subcategory.hasOwnProperty(\"IsRestricted\")) {\r",
+							"            pm.expect(subcategory.IsRestricted).to.be.a(\"boolean\");\r",
+							"        }\r",
+							"        if (subcategory.hasOwnProperty(\"HasLegalNotice\")) {\r",
+							"            pm.expect(subcategory.HasLegalNotice).to.be.a(\"boolean\");\r",
+							"        }\r",
+							"        if (subcategory.hasOwnProperty(\"CanHaveSecondCategory\")) {\r",
+							"            pm.expect(subcategory.CanHaveSecondCategory).to.be.a(\"boolean\");\r",
+							"        }\r",
+							"        if (subcategory.hasOwnProperty(\"CanBeSecondCategory\")) {\r",
+							"            pm.expect(subcategory.CanBeSecondCategory).to.be.a(\"boolean\");\r",
+							"        }\r",
+							"        if (subcategory.hasOwnProperty(\"AreaOfBusiness\")) {\r",
+							"            pm.expect(subcategory.AreaOfBusiness).to.be.oneOf([0, 1, 2, 3, 4, 5]);\r",
+							"        }\r",
+							"    }\r",
+							"\r",
+							"    function recursiveValidate(subcategories) {\r",
+							"        subcategories.forEach(subcategory => {\r",
+							"            validateOptionalFields(subcategory);\r",
+							"            if (subcategory.Subcategories) {\r",
+							"                recursiveValidate(subcategory.Subcategories);\r",
+							"            }\r",
+							"        });\r",
+							"    }\r",
+							"\r",
+							"    recursiveValidate(jsonData.Subcategories);\r",
+							"});\r",
+							"\r",
+							"//Validate that AreaOfBusiness is one of the allowed enumeration values (0, 1, 2, 3, 4, 5).\r",
+							"pm.test(\"AreaOfBusiness has valid values\", function () {\r",
+							"    const validValues = [0, 1, 2, 3, 4, 5];\r",
+							"    const jsonData = pm.response.json();\r",
+							"    jsonData.Subcategories.forEach(subcategory => {\r",
+							"        pm.expect(validValues).to.include(subcategory.AreaOfBusiness);\r",
+							"        if (subcategory.Subcategories) {\r",
+							"            subcategory.Subcategories.forEach(nested => {\r",
+							"                pm.expect(validValues).to.include(nested.AreaOfBusiness);\r",
+							"            });\r",
+							"        }\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"//If IsLeaf=true, the Subcategories field should not exist or be empty.\r",
+							"pm.test(\"IsLeaf consistency\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    jsonData.Subcategories.forEach(subcategory => {\r",
+							"        if (subcategory.IsLeaf) {\r",
+							"            pm.expect(subcategory.Subcategories).to.be.undefined;\r",
+							"        }\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"//Ensure the Number field is a non-empty string for non-root categories.\r",
+							"pm.test(\"Validate Number format\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    jsonData.Subcategories.forEach(subcategory => {\r",
+							"        pm.expect(subcategory.Number).to.be.a(\"string\").and.not.empty;\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"//Performance: Test and validate the API's response time is within acceptable limits (e.g., < 2 seconds).\r",
+							"pm.test(\"Response time is less than 2000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+							"});\r",
+							"\r",
+							"//Test for Empty Subcategories\r",
+							"pm.test(\"Validate response with empty Subcategories\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"\r",
+							"    if (jsonData.Subcategories.length === 0) {\r",
+							"        pm.expect(jsonData).to.have.property(\"Name\");\r",
+							"        pm.expect(jsonData).to.have.property(\"Number\");\r",
+							"        pm.expect(jsonData).to.have.property(\"Path\");\r",
+							"        pm.expect(jsonData.IsLeaf).to.be.false; // If Subcategories is empty, IsLeaf should be false\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.trademe.co.nz/v1/Categories.json",
+					"protocol": "https",
+					"host": [
+						"api",
+						"trademe",
+						"co",
+						"nz"
+					],
+					"path": [
+						"v1",
+						"Categories.json"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test Large Subcategory Depth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate response with large subcategory depth\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"\r",
+							"    function validateDepth(subcategories, currentDepth, maxDepth) {\r",
+							"        if (currentDepth > maxDepth) return; // Prevent infinite recursion\r",
+							"        subcategories.forEach(subcategory => {\r",
+							"            pm.expect(subcategory).to.have.property(\"Name\");\r",
+							"            pm.expect(subcategory).to.have.property(\"Number\");\r",
+							"            pm.expect(subcategory).to.have.property(\"Path\");\r",
+							"\r",
+							"            if (subcategory.Subcategories) {\r",
+							"                pm.expect(subcategory.Subcategories).to.be.an(\"array\");\r",
+							"                validateDepth(subcategory.Subcategories, currentDepth + 1, maxDepth);\r",
+							"            }\r",
+							"        });\r",
+							"    }\r",
+							"\r",
+							"    pm.expect(jsonData).to.have.property(\"Subcategories\");\r",
+							"    validateDepth(jsonData.Subcategories, 1, 10);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.trademe.co.nz/v1/Categories/0001-.json?depth=10",
+					"protocol": "https",
+					"host": [
+						"api",
+						"trademe",
+						"co",
+						"nz"
+					],
+					"path": [
+						"v1",
+						"Categories",
+						"0001-.json"
+					],
+					"query": [
+						{
+							"key": "depth",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test Invalid Region",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate response for invalid region ID\", function () {\r",
+							"    pm.response.to.have.status(400); // Ensure the status code is 400 (Bad Request)\r",
+							"\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"ErrorDescription\");\r",
+							"    pm.expect(jsonData.ErrorDescription).to.include(\"Invalid region ID 9999\"); // Validate the error message\r",
+							"\r",
+							"    pm.expect(jsonData).to.have.property(\"Request\");\r",
+							"    pm.expect(jsonData.Request).to.include(\"region=9999\"); // Ensure the invalid region was part of the request\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.trademe.co.nz/v1/Categories/0001-.json?with_counts=true&region=9999",
+					"protocol": "https",
+					"host": [
+						"api",
+						"trademe",
+						"co",
+						"nz"
+					],
+					"path": [
+						"v1",
+						"Categories",
+						"0001-.json"
+					],
+					"query": [
+						{
+							"key": "with_counts",
+							"value": "true"
+						},
+						{
+							"key": "region",
+							"value": "9999"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test Missing Required Parameters",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate response for missing required parameters\", function () {\r",
+							"    // Validate the HTTP status code\r",
+							"    pm.response.to.have.status(404);\r",
+							"\r",
+							"    // Log the raw response to verify if it's indeed a 404 HTML page\r",
+							"    console.log(\"Raw Response Body:\", pm.response.text());\r",
+							"\r",
+							"    // Verify the response body contains the correct error message or fallback\r",
+							"    const responseBody = pm.response.text();\r",
+							"    pm.expect(responseBody).to.include(\"404 - File or directory not found\");\r",
+							"    pm.expect(responseBody).to.include(\"The resource you are looking for might have been removed\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.trademe.co.nz/v1/Categories/.json",
+					"protocol": "https",
+					"host": [
+						"api",
+						"trademe",
+						"co",
+						"nz"
+					],
+					"path": [
+						"v1",
+						"Categories",
+						".json"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test Unsupported Format",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate response for unsupported format\", function () {\r",
+							"    // Validate the HTTP status code\r",
+							"    pm.response.to.have.status(404);\r",
+							"\r",
+							"    // Log the raw response to inspect server behavior\r",
+							"    console.log(\"Raw Response Body:\", pm.response.text());\r",
+							"\r",
+							"    // Check if the response body contains specific indicators of unsupported format\r",
+							"    const responseBody = pm.response.text();\r",
+							"    pm.expect(responseBody).to.include(\"404 - File or directory not found\");\r",
+							"    pm.expect(responseBody).to.include(\"The resource you are looking for might have been removed\");\r",
+							"\r",
+							"    // Ensure the response is HTML and not JSON/XML as expected\r",
+							"    pm.expect(pm.response.headers.get('Content-Type')).to.include(\"text/html\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.trademe.co.nz/v1/Categories/0001-.txt",
+					"protocol": "https",
+					"host": [
+						"api",
+						"trademe",
+						"co",
+						"nz"
+					],
+					"path": [
+						"v1",
+						"Categories",
+						"0001-.txt"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sanity Test Root Category in XML",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response time is less than 2000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+							"});\r",
+							"\r",
+							"// Test for Empty Subcategories\r",
+							"pm.test(\"Validate response with empty Subcategories\", function () {\r",
+							"    const xmlData = pm.response.text();\r",
+							"    const jsonData = xml2Json(xmlData, { ignoreNamespace: true });\r",
+							"\r",
+							"    if (jsonData.Category.Subcategories.length === 0) {\r",
+							"        pm.expect(jsonData.Category).to.have.property(\"Name\");\r",
+							"        pm.expect(jsonData.Category).to.have.property(\"Number\");\r",
+							"        pm.expect(jsonData.Category).to.have.property(\"Path\");\r",
+							"        pm.expect(jsonData.Category.IsLeaf).to.be.false; // If Subcategories is empty, IsLeaf should be false\r",
+							"    }\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.trademe.co.nz/v1/Categories.xml",
+					"protocol": "https",
+					"host": [
+						"api",
+						"trademe",
+						"co",
+						"nz"
+					],
+					"path": [
+						"v1",
+						"Categories.xml"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

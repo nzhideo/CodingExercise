@@ -143,6 +143,34 @@ def test_empty_input_handling():
         assert len(no_results_message) == 0, "No result count message displayed for empty search."
     finally:
         driver.quit()
+        
+# Test Case 7: Verify Search Responds Within Timeout
+@pytest.mark.non_functional
+def test_search_timeout():
+    driver = setup_driver()
+
+    try:
+        # Arrange
+        search_box = driver.find_element(By.ID, "search")
+        search_button = driver.find_element(By.CLASS_NAME, "tm-global-search__search-form-submit-button")
+        
+        # Act
+        search_box.send_keys("cars")
+        search_button.click()
+
+        # Measure time taken for results to load
+        start_time = time.time()
+        results = driver.find_elements(By.CLASS_NAME, "tm-marketplace-search-card__detail-section")
+        end_time = time.time()
+
+        elapsed_time = end_time - start_time
+
+        # Assert: Ensure that search results load within the allowed time (e.g., 3 seconds)
+        assert elapsed_time < 3, f"Search took too long: {elapsed_time:.2f} seconds."
+        assert len(results) > 0, "No results displayed for the search query."
+
+    finally:
+        driver.quit()
 
 if __name__ == "__main__":
     pytest.main()

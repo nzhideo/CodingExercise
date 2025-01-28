@@ -18,7 +18,7 @@ Please refer to the folder `search_functionality_tests`.
 1. Open the terminal.
 2. Navigate to the folder `...\search_functionality_tests\tests`.
 3. To run functional tests: `pytest -m functional`.
-4. To run non-functional tests: `pytest -m non-functional`.
+4. To run non-functional tests: `pytest -m non_functional`.
 5. To run all tests: `pytest -v`.
 6. To run a single test: `pytest -k TEST_METHOD_NAME`.
 

@@ -3,6 +3,8 @@ import time
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from driver_setup import setup_driver, teardown_driver, BASE_URL
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from helpers import get_search_box, get_search_button
 
 # Test Case 1: Verify Search Bar Accepts Input
@@ -34,8 +36,8 @@ def test_search_button_triggers_results():
         # Act
         search_box.send_keys("cars")
         search_button.click()
-        time.sleep(3)  # Wait for results to load
-        results = driver.find_elements(By.CLASS_NAME, "tm-marketplace-search-card__detail-section")
+        wait = WebDriverWait(driver, 3)
+        results = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "tm-marketplace-search-card__detail-section")))
         
         # Assert
         assert len(results) > 0, "No results displayed for the search query."
@@ -52,8 +54,8 @@ def test_auto_suggestions_appear():
         
         # Act
         search_box.send_keys("car")
-        time.sleep(2)  # Wait for auto-suggestions to appear
-        suggestions = driver.find_elements(By.CLASS_NAME, "ng-star-inserted")
+        wait = WebDriverWait(driver, 3)
+        suggestions = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "ng-star-inserted")))
         
         # Assert
         assert len(suggestions) > 0, "Auto-suggestions did not appear."
@@ -70,10 +72,11 @@ def test_auto_suggestions_are_clickable():
         
         # Act
         search_box.send_keys("car")
-        time.sleep(2)  # Wait for suggestions to load
-        suggestion = driver.find_element(By.XPATH, "//a[contains(@class, 'tm-global-search__search-suggestions-link') and .//span[contains(text(), 'cars')]]")
+        wait = WebDriverWait(driver, 3)
+        suggestion = wait.until(EC.presence_of_element_located((By.XPATH, "//a[contains(@class, 'tm-global-search__search-suggestions-link') and .//span[contains(text(), 'cars')]]")))
         if suggestion:
             suggestion.click()
+            # implicit wait
             time.sleep(3)  # Wait for navigation to the results page
             current_url = driver.current_url
             
@@ -96,6 +99,7 @@ def test_long_input_handling():
         # Act
         search_box.send_keys(long_text)
         search_box.send_keys(Keys.RETURN)
+        # implicit wait
         time.sleep(3)  # Wait for results to load
         
         # Assert
@@ -117,6 +121,7 @@ def test_empty_input_handling():
         # Act
         search_box.clear()
         search_box.send_keys(Keys.RETURN)
+        # implicit wait
         time.sleep(2)  # Wait for any error message or behavior
         current_url = driver.current_url
         no_results_message = driver.find_elements(By.CLASS_NAME, "tm-search-header-result-count__heading")
